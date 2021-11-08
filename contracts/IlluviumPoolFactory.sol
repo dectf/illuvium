@@ -114,6 +114,7 @@ contract IlluviumPoolFactory is Ownable, IlluviumAware {
         return blockNumber() >= lastRatioUpdate + blocksPerUpdate;
     }
 
+    //mike 创建新池子并记录
     function createPool(
         address poolToken,
         uint64 initBlock,
@@ -131,11 +132,13 @@ contract IlluviumPoolFactory is Ownable, IlluviumAware {
         registerPool(address(pool));
     }
 
+    //mike 将新pool记录一下
     function registerPool(address poolAddr) public onlyOwner {
+        //mike 读取pool的信息
         address poolToken = IPool(poolAddr).poolToken();
         bool isFlashPool = IPool(poolAddr).isFlashPool();
         uint32 weight = IPool(poolAddr).weight();
-
+        //mike 必须没注册过
         require(
             pools[poolToken] == address(0),
             "this pool is already registered"
