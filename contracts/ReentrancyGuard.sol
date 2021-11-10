@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.1;
 
+//mike 防止重入攻击
 abstract contract ReentrancyGuard {
     uint256 private constant _NOT_ENTERED = 1;
     uint256 private constant _ENTERED = 2;

@@ -7,6 +7,8 @@ import "./IlluviumCorePool.sol";
 import "../token/EscrowedIlluviumERC20.sol";
 import "../utils/Ownable.sol";
 
+//mike mainnet 0x2996222cb2bF3675e5f5f88A5F211736197F03C7
+//mike 可以创建池子的工厂合约，注册池子，更新每区块ilv，mint ilv和修改池子权重
 contract IlluviumPoolFactory is Ownable, IlluviumAware {
     uint256 public constant FACTORY_UID =
         0xc5cfd88c6e4d7e5c8a03c255f03af23c0918d8e82cac196f57466af3fd4a5ec7;
@@ -18,21 +20,21 @@ contract IlluviumPoolFactory is Ownable, IlluviumAware {
         bool isFlashPool;
     }
 
-    uint192 public ilvPerBlock;
+    uint192 public ilvPerBlock; //mike 随时间递减
 
     uint32 public totalWeight;
 
     uint32 public immutable blocksPerUpdate;
 
-    uint32 public endBlock;
+    uint32 public endBlock; //mike 19856916
 
     uint32 public lastRatioUpdate;
 
     address public immutable silv;
 
-    mapping(address => address) public pools;
+    mapping(address => address) public pools; //mike 记录token对应的池子
 
-    mapping(address => bool) public poolExists;
+    mapping(address => bool) public poolExists; //mike 已创建的池子
 
     event PoolRegistered(
         address indexed _by,
@@ -50,6 +52,7 @@ contract IlluviumPoolFactory is Ownable, IlluviumAware {
 
     event IlvRatioUpdated(address indexed _by, uint256 newIlvPerBlock);
 
+    //mike 实例化IlluviumAware
     constructor(
         address _ilv,
         address _silv,
@@ -80,10 +83,12 @@ contract IlluviumPoolFactory is Ownable, IlluviumAware {
         endBlock = _endBlock;
     }
 
+    //mike 获取token对应的池子地址
     function getPoolAddress(address poolToken) external view returns (address) {
         return pools[poolToken];
     }
 
+    //mike 读取池子信息
     function getPoolData(address _poolToken)
         public
         view
@@ -106,6 +111,7 @@ contract IlluviumPoolFactory is Ownable, IlluviumAware {
             });
     }
 
+    //mike 如果factory关闭了，就不更新ilvPerBlock；否则，每隔一些区块更新一次
     function shouldUpdateRatio() public view returns (bool) {
         if (blockNumber() > endBlock) {
             return false;
@@ -158,32 +164,37 @@ contract IlluviumPoolFactory is Ownable, IlluviumAware {
         );
     }
 
+    //mike 时间到了以后，每个区块的收益降低为原来的0.97
     function updateILVPerBlock() external {
         require(shouldUpdateRatio(), "too frequent");
 
         ilvPerBlock = (ilvPerBlock * 97) / 100;
-
+        //mike 更新时间
         lastRatioUpdate = uint32(blockNumber());
 
         emit IlvRatioUpdated(msg.sender, ilvPerBlock);
     }
 
+    //mike basePool池子调用，给to mint ilv
     function mintYieldTo(address _to, uint256 _amount) external {
         require(poolExists[msg.sender], "access denied");
-
+        //mike mint ilv给to
         mintIlv(_to, _amount);
     }
 
+    //mike 修改池子权重为weight
     function changePoolWeight(address poolAddr, uint32 weight) external {
+        //mike 要么是owner，要么是池子自己调用
         require(msg.sender == owner() || poolExists[msg.sender]);
-
+        //mike 总权重先加后减，相当于改变权重
         totalWeight = totalWeight + weight - IPool(poolAddr).weight();
-
+        //mike 池子本身权重直接设置
         IPool(poolAddr).setWeight(weight);
 
         emit WeightUpdated(msg.sender, poolAddr, weight);
     }
 
+    //mike 当前区块号
     function blockNumber() public view virtual returns (uint256) {
         return block.number;
     }

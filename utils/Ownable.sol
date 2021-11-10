@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.1;
 
+//mike owner的抽象合约
 abstract contract Ownable {
     address private _owner;
 
@@ -24,11 +25,13 @@ abstract contract Ownable {
         _;
     }
 
+    //mike 永久封禁owner角色
     function renounceOwnership() public virtual onlyOwner {
         emit OwnershipTransferred(_owner, address(0));
         _owner = address(0);
     }
 
+    //mike 直接将owner转移出去
     function transferOwnership(address newOwner) public virtual onlyOwner {
         require(
             newOwner != address(0),

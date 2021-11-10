@@ -6,6 +6,7 @@ import "../utils/AccessControl.sol";
 import "./ERC20Receiver.sol";
 
 //mike mainnet 0x767FE9EDC9E0dF98E07454847909b5E959D7ca0E
+//mike 集成了delegate的ilv
 contract IlluviumERC20 is AccessControl {
     uint256 public constant TOKEN_UID =
         0x83ecb176af7c4f35a45ff0018282e3a05a1018065da866182df12285866f5a2c;
@@ -148,7 +149,7 @@ contract IlluviumERC20 is AccessControl {
         bytes memory _data
     ) public {
         unsafeTransferFrom(_from, _to, _value);
-
+        //mike 如果to是一个合约地址，需要保证收到了token
         if (AddressUtils.isContract(_to)) {
             bytes4 response = ERC20Receiver(_to).onERC20Received(
                 msg.sender,
@@ -528,6 +529,7 @@ contract IlluviumERC20 is AccessControl {
         emit VotingPowerChanged(_of, _fromVal, _toVal);
     }
 
+    //mike 二分查找
     function __binaryLookup(address _to, uint256 n)
         private
         view

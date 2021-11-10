@@ -6,12 +6,13 @@ pragma solidity 0.8.1;
 import "./ILinkedToILV.sol";
 
 interface IPool is ILinkedToILV {
+    //mike stake记录
     struct Deposit {
         uint256 tokenAmount;
         uint256 weight;
         uint64 lockedFrom;
         uint64 lockedUntil;
-        bool isYield;
+        bool isYield; //mike 确定ilv是否可以mint，如果不可以，那就只能通过transfer
     }
 
     function silv() external view returns (address);
