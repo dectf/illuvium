@@ -4,7 +4,6 @@ pragma solidity 0.8.1;
 import "../interfaces/IERC20.sol";
 
 // Copied from Open Zeppelin
-
 contract ERC20 is IERC20 {
     mapping(address => uint256) private _balances;
 

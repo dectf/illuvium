@@ -57,6 +57,7 @@ contract AccessControl {
         return __hasRole(features(), required);
     }
 
+    //mike 是否
     function isSenderInRole(uint256 required) public view returns (bool) {
         return isOperatorInRole(msg.sender, required);
     }
