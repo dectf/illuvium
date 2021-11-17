@@ -165,6 +165,7 @@ contract IlluviumPoolFactory is Ownable, IlluviumAware {
     }
 
     //mike 时间到了以后，每个区块的收益降低为原来的0.97
+    //mike 现在每隔14天有人update一次，https://etherscan.io/address/0x2996222cb2bf3675e5f5f88a5f211736197f03c7/advanced#events
     function updateILVPerBlock() external {
         require(shouldUpdateRatio(), "too frequent");
 
